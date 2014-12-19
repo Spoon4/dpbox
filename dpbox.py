@@ -57,7 +57,7 @@ class DBoxClient(object):
 
         self._load()
         
-        key, secret = decode_dropbox_key(config.dpbox['app']['encodedkey'])
+        key, secret = decode_dropbox_key(config.dpbox['app']['encoded'])
         
         self.session = DBoxSession(config.dpbox['app']['key'], config.dpbox['app']['secret'], access_type=config.dpbox['app']['access'])
         
