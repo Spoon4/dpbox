@@ -47,7 +47,8 @@ commands:
     download            Download a file from Dropbox
     upload              Upload a file on Dropbox
     list                list a remote folder content
-    infos               get info on user
+    infos               get info on Dropbox item
+    user                get user info
     connect             connect to Dropbox
     disconnect          disconnect from Dropbox
 ```
@@ -55,12 +56,13 @@ commands:
 ### Download file
 
 ```
-usage: dpbox download [-h] -f FILE [-d DEST]
+usage: dpbox download [-h][-r] -f FILE [-d DEST]
 
 optional arguments:
   -h, --help            show this help message and exit
   -f FILE, --file FILE  the file to download
   -d DEST, --dest DEST  the download destination
+  -r, --recursive       get files recursively
 ```
 
 ### Upload file

@@ -52,7 +52,7 @@ def decode_dropbox_key(key):
 class DBoxClient(object):
     def __init__(self):
         self._logger = logging.getLogger(config.dpbox['logger']['name'])
-        self.cache_file = config.dpbox['logger']['file']
+        self.cache_file = config.dpbox['cachefile']
         self._token = None
 
         self._load()
@@ -73,17 +73,30 @@ class DBoxClient(object):
         self._logger.debug('[dpbox v%s] resetting local state' % (VERSION))
         self._save()
         
-    def download(self, source, directory=''):
+    def download(self, source, directory='', recursive=False):
         
         if len(directory) > 0 and directory[len(directory)-1] != '/':
             directory += '/'
                 
-        segs = source.split('/')
-        directory += segs[len(segs)-1]
-        
         print 'fetch file %s -> %s' % (source, directory)
         self._logger.info(u'[dpbox v%s] FETCH %s -> %s' % (VERSION, unicode(source), unicode(directory)))
         
+        if recursive:
+            metadata = self.client.metadata(source)
+            
+            for item in metadata['contents']:
+                if False == item['is_dir']:
+                    segs = item['path'].split('/')
+                    self._download(item['path'], directory + segs[len(segs)-1])
+                    print u"[rev %s] %s - '%s' downloaded" % (item['revision'], item['size'], item['path'])
+        
+        else:
+            segs = source.split('/')
+            self._download(source, directory + segs[len(segs)-1])
+            print u"[rev %s] %s - '%s' downloaded" % (metadata['revision'], metadata['size'], directory)
+
+        
+    def _download(self, source, directory):
         try:
             f, metadata = self.client.get_file_and_metadata(source)
             self._logger.debug(u'metadata for %s' % source)
@@ -94,11 +107,11 @@ class DBoxClient(object):
             return # Will check later if we've got everything.
             
         print 'writing file on disk...'
+
         destination = open(os.path.expanduser(directory.encode('utf-8')), 'wb')
         destination.write(f.read())
         destination.close()
-        print u"[rev %s] %s - '%s' downloaded" % (metadata['revision'], metadata['size'], directory)
-        
+
     def upload(self, source, directory):
         
         if len(directory) > 0 and directory[len(directory)-1] != '/':
@@ -127,7 +140,12 @@ class DBoxClient(object):
             else:
                 print 'f ', item['path']
         
-    def infos(self, item=''):
+    def infos(self, item):
+        path = unicode(item).encode('utf-8')
+        metadata = self.client.metadata(path)
+        print metadata
+
+    def user(self, item=''):
         infos = self.client.account_info()
         
         self._logger.debug(u'[dpbox v%s] %s' % (VERSION, infos))
@@ -242,6 +260,8 @@ def main(argv):
                             help="the file to download")
     parser_dl.add_argument("-d", "--dest", default='',
                             help="the download destination")
+    parser_dl.add_argument("-r", "--recursive", action="store_true",
+                            help="recursive mode")
     
     parser_ul = subparsers.add_parser('upload', help='Upload a file on Dropbox')
     parser_ul.add_argument("-f", "--file", required=True,
@@ -254,7 +274,11 @@ def main(argv):
     parser_li.add_argument("-d", "--dir", default='/',
                             help="the path to directory to list")
     
-    parser_i = subparsers.add_parser("infos", help="get info on user")
+    parser_u = subparsers.add_parser("user", help="get info on user")
+    parser_u.add_argument('-n', "--name", default='/',
+                         help="get a specific info")
+    
+    parser_i = subparsers.add_parser("infos", help="get info on item")
     parser_i.add_argument('-n', "--name", default='',
                          help="get a specific info")
     
@@ -281,12 +305,14 @@ def main(argv):
     
     if args.subparser_name == "connect":
         client.infos()
+    if args.subparser_name == "user":
+        client.user(args.name)
     if args.subparser_name == "infos":
         client.infos(args.name)
     elif args.subparser_name == "disconnect":
         client.disconnect()
     elif args.subparser_name == "download":
-        client.download(args.file, args.dest)
+        client.download(args.file, args.dest, args.recursive)
     elif args.subparser_name == "upload":
         client.upload(args.file, args.dest)
     elif args.subparser_name == "list":
