@@ -82,13 +82,15 @@ optional arguments:
 ### List folder content
 
 ```
-usage: dpbox list [-h] dir
+usage: dpbox infos [-h] [-o OUTPUT] name
 
 positional arguments:
-  dir         the path to directory to list
+  name                  get info on an entry
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        export result to JSON file
 ```
 
 License

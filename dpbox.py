@@ -139,10 +139,14 @@ class DBoxClient(object):
             else:
                 print 'f ', item['path']
         
-    def infos(self, item):
+    def infos(self, item, filename=''):
         path = unicode(item).encode('utf-8')
         metadata = self.client.metadata(path)
-        print metadata
+        if len(filename) > 0:
+            with open(filename, 'w') as outfile:
+                json.dump(metadata, outfile)
+        else:
+            print metadata
 
     def user(self, item=''):
         infos = self.client.account_info()
@@ -272,8 +276,9 @@ def main(argv):
                          help="get a specific info")
     
     parser_i = subparsers.add_parser("infos", help="get info on Dropbox entry")
-    parser_i.add_argument('-n', "--name", default='',
-                         help="get a specific info")
+    parser_i.add_argument("name", help="get info on an entry")
+    parser_i.add_argument('-o', "--output", default='',
+                         help="export result to JSON file")
     
     subparsers.add_parser("connect", help="connect to Dropbox")
     subparsers.add_parser("disconnect", help="disconnect from Dropbox")
@@ -297,11 +302,11 @@ def main(argv):
         client.reset()
     
     if args.subparser_name == "connect":
-        client.infos()
+        client.user()
     if args.subparser_name == "user":
         client.user(args.name)
     if args.subparser_name == "infos":
-        client.infos(args.name)
+        client.infos(args.name, args.output)
     elif args.subparser_name == "disconnect":
         client.disconnect()
     elif args.subparser_name == "download":
