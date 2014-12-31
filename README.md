@@ -56,34 +56,39 @@ commands:
 ### Download file
 
 ```
-usage: dpbox download [-h][-r] -f FILE [-d DEST]
+usage: dpbox download [-h] [-d DEST] file
+
+positional arguments:
+  file                  the file to download
 
 optional arguments:
   -h, --help            show this help message and exit
-  -f FILE, --file FILE  the file to download
-  -d DEST, --dest DEST  the download destination
-  -r, --recursive       get files recursively
+  -d DEST, --dest DEST  the download destination (current directory is default
 ```
 
 ### Upload file
 
 ```
-usage: dpbox upload [-h] -f FILE [-d DEST]
+usage: dpbox upload [-h] file dest
+
+positional arguments:
+  file        the file to upload
+  dest        the upload destination
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -f FILE, --file FILE  the file to upload
-  -d DEST, --dest DEST  the upload destination
+  -h, --help  show this help message and exit
 ```
 
 ### List folder content
 
 ```
-usage: dpbox list [-h] [-d DIR]
+usage: dpbox list [-h] dir
+
+positional arguments:
+  dir         the path to directory to list
 
 optional arguments:
-  -h, --help         show this help message and exit
-  -d DIR, --dir DIR  the path to directory to list
+  -h, --help  show this help message and exit
 ```
 
 License
@@ -94,4 +99,11 @@ License
 Change log
 ----------
 
-1.0 Initial version
+### 1.0
+
+Initial version
+
+### 1.1
+
+* Changed options with positional arguments
+* Can now download folders

@@ -73,32 +73,18 @@ class DBoxClient(object):
         self._logger.debug('[dpbox v%s] resetting local state' % (VERSION))
         self._save()
         
-    def download(self, source, directory='', recursive=False):
+    def download(self, source, directory=''):
         
         if len(directory) > 0 and directory[len(directory)-1] != '/':
             directory += '/'
-                
-        print 'fetch file %s -> %s' % (source, directory)
+           
         self._logger.info(u'[dpbox v%s] FETCH %s -> %s' % (VERSION, unicode(source), unicode(directory)))
-        
-        if recursive:
-            metadata = self.client.metadata(source)
-            
-            for item in metadata['contents']:
-                if False == item['is_dir']:
-                    segs = item['path'].split('/')
-                    self._download(item['path'], directory + segs[len(segs)-1])
-                    print u"[rev %s] %s - '%s' downloaded" % (item['revision'], item['size'], item['path'])
-        
-        else:
-            segs = source.split('/')
-            self._download(source, directory + segs[len(segs)-1])
-            print u"[rev %s] %s - '%s' downloaded" % (metadata['revision'], metadata['size'], directory)
+        self._download(source, directory)
 
         
     def _download(self, source, directory):
         try:
-            f, metadata = self.client.get_file_and_metadata(source)
+            metadata = self.client.metadata(source)
             self._logger.debug(u'metadata for %s' % source)
             self._logger.debug(metadata)
         except Exception as e:
@@ -106,11 +92,24 @@ class DBoxClient(object):
             self._logger.exception(e)
             return # Will check later if we've got everything.
             
-        print 'writing file on disk...'
+        segs = metadata['path'].split('/')
+        directory += segs[len(segs)-1]
 
-        destination = open(os.path.expanduser(directory.encode('utf-8')), 'wb')
-        destination.write(f.read())
-        destination.close()
+        if metadata['is_dir']:
+            try:
+                os.stat(directory)
+            except:
+                os.mkdir(directory)
+
+            for item in metadata['contents']:
+                self._download(item['path'], directory + '/')
+        else:
+            f = self.client.get_file(source)
+            print 'writing file to disc...'
+            destination = open(os.path.expanduser(directory.encode('utf-8')), 'wb')
+            destination.write(f.read())
+            destination.close()
+            print u"[rev %s] %s - '%s' downloaded" % (metadata['revision'], metadata['size'], directory)
 
     def upload(self, source, directory):
         
@@ -256,26 +255,20 @@ def main(argv):
     subparsers = parser.add_subparsers(title="commands", dest="subparser_name")
     
     parser_dl = subparsers.add_parser('download', help='Download a file from Dropbox')
-    parser_dl.add_argument("-f", "--file", required=True,
-                            help="the file to download")
+    parser_dl.add_argument("file", help="the file to download")
     parser_dl.add_argument("-d", "--dest", default='',
-                            help="the download destination")
-    parser_dl.add_argument("-r", "--recursive", action="store_true",
-                            help="recursive mode")
+                            help="the download destination (current directory is default")
     
     parser_ul = subparsers.add_parser('upload', help='Upload a file on Dropbox')
-    parser_ul.add_argument("-f", "--file", required=True,
-                            help="the file to upload")
-    parser_ul.add_argument("-d", "--dest", default='/',
-                            help="the upload destination")
+    parser_ul.add_argument("file", help="the file to upload")
+    parser_ul.add_argument("dest", help="the upload destination")
     
 
     parser_li = subparsers.add_parser("list", help="list a remote folder content")
-    parser_li.add_argument("-d", "--dir", default='/',
-                            help="the path to directory to list")
+    parser_li.add_argument("dir", help="the path to directory to list")
     
     parser_u = subparsers.add_parser("user", help="get info on user")
-    parser_u.add_argument('-n', "--name", default='/',
+    parser_u.add_argument('-n', "--name", default='',
                          help="get a specific info")
     
     parser_i = subparsers.add_parser("infos", help="get info on item")
@@ -312,7 +305,7 @@ def main(argv):
     elif args.subparser_name == "disconnect":
         client.disconnect()
     elif args.subparser_name == "download":
-        client.download(args.file, args.dest, args.recursive)
+        client.download(args.file, args.dest)
     elif args.subparser_name == "upload":
         client.upload(args.file, args.dest)
     elif args.subparser_name == "list":
