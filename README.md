@@ -33,7 +33,7 @@ Usage
 
 ```
 usage: dpbox [-h] [-v] [-r]
-             {download,upload,list,infos,connect,disconnect} ...
+             {download,upload,list,user,infos,connect,disconnect} ...
 
 Dropbox command line tool.
 
@@ -43,12 +43,12 @@ optional arguments:
   -r, --reset           reload cached token
 
 commands:
-  {download,upload,list,infos,connect,disconnect}
+  {download,upload,list,user,infos,connect,disconnect}
     download            Download a file from Dropbox
     upload              Upload a file on Dropbox
     list                list a remote folder content
-    infos               get info on Dropbox item
     user                get user info
+    infos               get info on Dropbox entry
     connect             connect to Dropbox
     disconnect          disconnect from Dropbox
 ```
@@ -107,3 +107,5 @@ Initial version
 
 * Changed options with positional arguments
 * Can now download folders
+* Renamed `infos` command to `user`
+* New `infos` command display raw given entry's metadata

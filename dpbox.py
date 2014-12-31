@@ -267,11 +267,11 @@ def main(argv):
     parser_li = subparsers.add_parser("list", help="list a remote folder content")
     parser_li.add_argument("dir", help="the path to directory to list")
     
-    parser_u = subparsers.add_parser("user", help="get info on user")
+    parser_u = subparsers.add_parser("user", help="get user info")
     parser_u.add_argument('-n', "--name", default='',
                          help="get a specific info")
     
-    parser_i = subparsers.add_parser("infos", help="get info on item")
+    parser_i = subparsers.add_parser("infos", help="get info on Dropbox entry")
     parser_i.add_argument('-n', "--name", default='',
                          help="get a specific info")
     
