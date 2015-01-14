@@ -1,7 +1,7 @@
 dpbox
 =====
 
-Simple command line tool to interact Dropbox API.
+Simple command line tool to interact with Dropbox API.
 
 Configuration file
 ------------------
@@ -26,7 +26,7 @@ dpbox = dict(
 )
 ```
 
-Get your encoded Dropbox app key at https://dl-web.dropbox.com/spa/pjlfdak1tmznswp/api_keys.js/public/index.html
+Get your encoded Dropbox app key [here]( https://dl-web.dropbox.com/spa/pjlfdak1tmznswp/api_keys.js/public/index.html)
 
 Usage
 -----
